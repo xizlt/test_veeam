@@ -8,11 +8,11 @@ HASH_TYPE = ['md5', 'sha1', 'sha256']
 
 class CheckHash:
     def __init__(self, path_main_file, path_for_files):
-        self.path_input_file = self.__create_path(path_main_file)
-        self.path_to_files = self.__create_path(path_for_files)
+        self.path_input_file = self.create_path(path_main_file)
+        self.path_to_files = self.create_path(path_for_files)
 
     @staticmethod
-    def __create_path(path):
+    def create_path(path):
         """
         If this folder then adds a '/'
         :param path: the path to the file
@@ -25,7 +25,7 @@ class CheckHash:
         else:
             return path
 
-    def _validation_line_in_file(self, line, num_line):
+    def validation_line_in_file(self, line, num_line):
         """
         Checks line in an open file for correctness
         :param line: the line in an open file
@@ -58,7 +58,7 @@ class CheckHash:
 
             return True
 
-    def _check_hash(self, obj):
+    def check_hash(self, obj):
         """
         Check if hash sums match
         :param obj: the line in an open file
@@ -93,10 +93,10 @@ class CheckHash:
                     if len(line.split()) == 0:
                         continue
                     str_line = line.replace('\n', '')
-                    if not self._validation_line_in_file(str_line, num):
+                    if not self.validation_line_in_file(str_line, num):
                         continue
                     else:
-                        self._check_hash(str_line)
+                        self.check_hash(str_line)
         except FileNotFoundError:
             print(f"File {self.path_input_file} not found")
         except IOError:
