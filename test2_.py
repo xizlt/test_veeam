@@ -4,11 +4,10 @@ import os
 COUNT_SEPARATE_IN_LINE = 3
 COLUMNS_IN_ROW = 3
 HASH_TYPE = ['md5', 'sha1', 'sha256']
-PATH_TO_FILE = 'data.txt'
 PATH_INSIDE_FILE = ''
 
 
-def validation_line_in_file(line, num_line):
+def validation_line_in_file(line, num_line, path_to_files):
     separate_line = line.split(' ', maxsplit=COUNT_SEPARATE_IN_LINE)
 
     if len(separate_line) != COLUMNS_IN_ROW:
@@ -27,17 +26,17 @@ def validation_line_in_file(line, num_line):
             print(f"File name error \n--- {line} ---\n in line {num_line}. Check the filename: {separate_line[0]}")
             exit()
         else:
-            if not os.path.exists(PATH_INSIDE_FILE + separate_line[0]):
+            if not os.path.exists(path_to_files + separate_line[0]):
                 """ Check available file"""
                 print(f'{separate_line[0]} NOT FOUND')
         return True
 
 
-def check_hash(obj):
+def check_hash(obj, path_to_files):
     separate_line = obj.split(' ')
     hash_type = separate_line[1].lower()
     hash_sum_provided = separate_line[2]
-    file = PATH_INSIDE_FILE + separate_line[0]
+    file = path_to_files + separate_line[0]
 
     if hash_type in (HASH_TYPE and hashlib.algorithms_available):
         hash_sum_received = hashlib.new(hash_type, file.encode()).hexdigest()
@@ -50,22 +49,25 @@ def check_hash(obj):
         exit()
 
 
-def read_file():
+def read_file(path_input_file, path_to_files=""):
     try:
-        with open(PATH_TO_FILE, "r") as f:
+        with open(path_input_file, "r") as f:
             for num, line in enumerate(f, 1):
                 if len(line.split()) == 0:
                     continue
                 str_line = line.replace('\n', '')
-                if not validation_line_in_file(str_line, num):
+                if not validation_line_in_file(str_line, num, path_to_files):
                     break
                 else:
-                    check_hash(str_line)
+                    check_hash(str_line, path_to_files)
     except FileNotFoundError:
-        print(f"File {PATH_TO_FILE} not found")
+        print(f"File {path_input_file} not found")
     except IOError:
-        print(f'File {PATH_TO_FILE} not available')
+        print(f'File {path_input_file} not available')
 
 
 if __name__ == '__main__':
-    read_file()
+    path_input_file = input('path to the input file\n')
+    path_to_files = input('path to the directory containing the files to check\n')
+
+    read_file(path_input_file, path_to_files)
