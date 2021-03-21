@@ -12,6 +12,11 @@ class CheckHash:
 
     @staticmethod
     def __create_path(path):
+        """
+        If this folder then adds a '/'
+        :param path: the path to the file
+        :return: path
+        """
         if path == '':
             return path
         elif list(path)[-1] != '/' and len(path.split('.')) < 2:
@@ -20,6 +25,12 @@ class CheckHash:
             return path
 
     def _validation_line_in_file(self, line, num_line):
+        """
+        Checks line in an open file for correctness
+        :param line: the line in an open file
+        :param num_line: line index
+        :return: True or termination of the program
+        """
         separate_line = line.split(' ', maxsplit=COLUMNS_IN_ROW)
         file = self.path_to_files + separate_line[0]
         if len(separate_line) != COLUMNS_IN_ROW:
@@ -44,6 +55,11 @@ class CheckHash:
             return True
 
     def _check_hash(self, obj):
+        """
+        Check if hash sums match
+        :param obj: the line in an open file
+        :return: <filename> OK or NOT
+        """
         separate_line = obj.split(' ')
         hash_type = separate_line[1].lower()
         hash_sum_provided = separate_line[2]
@@ -60,6 +76,10 @@ class CheckHash:
             exit()
 
     def read_file(self):
+        """
+        Opens a file for reading
+        :return: None
+        """
         try:
             with open(self.path_input_file, "r") as f:
                 for num, line in enumerate(f, 1):
@@ -77,6 +97,11 @@ class CheckHash:
 
 
 def check_exists_file(value):
+    """
+    Checks the file path.
+    :param value: the path to the file
+    :return: Bool
+    """
     if len(value) == 0 or len(value.split('.')) < 2:
         print('You didn`t specify the file path. Try it again ')
         return True
