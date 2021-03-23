@@ -37,7 +37,7 @@ class CheckHash:
         if len(separate_line) != COLUMNS_IN_ROW:
             """ Check the allowed number of columns in a row"""
             print(f"Invalid string \n--- {line} ---\n in line {num_line}. Count columns must be: {COLUMNS_IN_ROW}")
-            exit()
+            return False
         else:
             if separate_line[1].lower() not in HASH_TYPE:
                 """ Check if the hash name is in the available list """
@@ -94,7 +94,7 @@ class CheckHash:
                         continue
                     str_line = line.replace('\n', '')
                     if not self.validation_line_in_file(str_line, num):
-                        continue
+                        exit()
                     else:
                         self.check_hash(str_line)
         except FileNotFoundError:

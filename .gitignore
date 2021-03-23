@@ -69,3 +69,4 @@ venv.bak/
 files/
 *.txt
 .test2_.py
+tests/
