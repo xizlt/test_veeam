@@ -1,0 +1,8 @@
+files/file_03.txt md5 fefb677369d7894997575b0e448c40e3
+files/file_01.bin MD5 a296c9c739d1b1b7cc5f9e77705261be
+file_02.bin md5 6dc2d05c8374293fe20bc4c22c236e2e
+file_03.bin MD5 6dc2d05c8374293fe20bc4c22c236e2e
+
+file_04.txtc sha1 da39a3ee5e6b4b0d3255bfef95601890afd80709
+file_03.txt md5 fefb677369d7894997575b0e448c40e3
+file_01.bin MD5 a296c9c739d1b1b7cc5f9e77705261be

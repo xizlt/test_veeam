@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 COLUMNS_IN_ROW = 3
-HASH_TYPE = ['md5', 'sha1', 'sha256']
+HASH_TYPE = ['md5', 'sha1', 'sha256', 'test']
 
 
 class CheckHash:
@@ -25,59 +25,77 @@ class CheckHash:
         else:
             return path
 
-    def validation_line_in_file(self, line, num_line):
+    def validation_line_in_file(self, line, id_line, separate_line):
         """
-        Checks line in an open file for correctness
-        :param line: the line in an open file
-        :param num_line: line index
-        :return: True or termination of the program
+        Check the allowed number of columns in a row
+        :param line:
+        :param id_line:
+        :param separate_line:
+        :return:
         """
-        separate_line = line.split(' ', maxsplit=COLUMNS_IN_ROW)
-        file = self.path_to_files + separate_line[0]
         if len(separate_line) != COLUMNS_IN_ROW:
-            """ Check the allowed number of columns in a row"""
-            print(f"Invalid string \n--- {line} ---\n in line {num_line}. Count columns must be: {COLUMNS_IN_ROW}")
+            print(f"Invalid string \n--- {line} ---\nin line {id_line}. Count columns must be: {COLUMNS_IN_ROW}")
             return False
-        else:
-            if separate_line[1].lower() not in HASH_TYPE:
-                """ Check if the hash name is in the available list """
-                print(
-                    f"\nInvalid encoding method: {separate_line[1].lower()}\n--- {line} ---\nin line {num_line}"
-                    f". Available encoding: {HASH_TYPE}")
-                exit()
+        return True
 
-            if len(separate_line[0].split('.')) < 2 or separate_line[0].split('.')[0] == '':
-                """ Check the filename and extension"""
-                print(f"File name error \n--- {line} ---\n in line {num_line}. Check the filename: {separate_line[0]}")
-                exit()
-            else:
-                if not os.path.exists(file):
-                    """ Check available file"""
-                    print(f'{file} NOT FOUND')
-                    return False
+    def check_hash_type(self, line, id_line, hash_name):
+        """
+        Check hash type in the available list
+        :param line:
+        :param id_line:
+        :param hash_name:
+        :return:
+        """
+        if hash_name not in HASH_TYPE:
+            """ Check if the hash name is in the available list """
+            print(
+                f"\nInvalid encoding method: {hash_name.lower()}\n--- {line} ---\nin line {id_line}"
+                f". Available encoding: {HASH_TYPE}")
+            return False
+        elif hash_name not in (HASH_TYPE and hashlib.algorithms_available):
+            """ Check the type hash"""
+            print(f'This type "{hash_name}" is not supported')
+            return False
+        return True
 
-            return True
+    def check_name_file(self, line, id_line, name):
+        """
+        Check name file
+        :param line:
+        :param id_line:
+        :param name:
+        :return:
+        """
+        if len(name.split('.')) < 2 or name.split('.')[0] == '':
+            """ Check the filename and extension"""
+            print(f"File name error \n--- {line} ---\n in line {id_line}. Check the filename: {name}")
+            return False
+        return True
 
-    def check_hash(self, obj):
+    def check_path_file(self, path):
+        """
+        Check path to file in line
+        :param path:
+        :return:
+        """
+        if not os.path.exists(path):
+            print(f'{path} NOT FOUND')
+            return False
+        return True
+
+    def check_hash(self, hash_value, hash_actual, file):
         """
         Check if hash sums match
-        :param obj: the line in an open file
-        :return: <filename> OK or NOT
+        :param hash_value:
+        :param hash_actual:
+        :param file:
+        :return:
         """
-        separate_line = obj.split(' ')
-        hash_type = separate_line[1].lower()
-        hash_sum_provided = separate_line[2]
-        file = self.path_to_files + separate_line[0]
 
-        if hash_type in (HASH_TYPE and hashlib.algorithms_available):
-            hash_sum_received = hashlib.new(hash_type, file.encode()).hexdigest()
-            if hash_sum_provided == hash_sum_received:
-                print(f'{file} OK')
-            elif os.path.exists(file):
-                print(f'{file} FAIL')
+        if hash_value == hash_actual:
+            print(f'{file} OK')
         else:
-            print(f'This type "{hash_type}" is not supported')
-            exit()
+            print(f'{file} FAIL')
 
     def read_file(self):
         """
@@ -88,17 +106,35 @@ class CheckHash:
             if Path(self.path_input_file).stat().st_size == 0:
                 print(f"File {self.path_input_file} empty")
                 exit()
+
             with open(self.path_input_file, "r") as f:
                 for num, line in enumerate(f, 1):
+
                     if len(line.split()) == 0:
                         continue
-                    str_line = line.replace('\n', '')
-                    if not self.validation_line_in_file(str_line, num):
+
+                    str_line = line.replace('\n', '').strip()
+                    separate_line = str_line.split(' ', maxsplit=COLUMNS_IN_ROW)
+                    if not self.validation_line_in_file(str_line, num, separate_line):
                         exit()
+
+                    file = self.path_to_files + separate_line[0]
+                    hash_name = separate_line[1].lower()
+                    hash_value = separate_line[2]
+                    hash_actual = hashlib.new(hash_name, file.encode()).hexdigest()
+
+                    if not self.check_hash_type(line, num, hash_name) and \
+                            self.check_name_file(line, num, file):
+                        exit()
+                    elif not self.check_path_file(file):
+                        continue
                     else:
-                        self.check_hash(str_line)
+                        self.check_hash(hash_value, hash_actual, file)
+
         except FileNotFoundError:
             print(f"File {self.path_input_file} not found")
+            raise
+
         except IOError:
             print(f'File {self.path_input_file} not available')
 
@@ -110,7 +146,7 @@ def check_exists_file(value):
     :return: Bool
     """
     if len(value) == 0 or len(value.split('.')) < 2:
-        print('You didn`t specify the file path. Try it again ')
+        print('You didn`t specify the file path. Try it again')
         return True
     elif not os.path.exists(value):
         print('File on the given path was not found. Check path')
