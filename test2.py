@@ -4,6 +4,7 @@ from pathlib import Path
 
 COLUMNS_IN_ROW = 3
 HASH_TYPE = ['md5', 'sha1', 'sha256', 'test']
+READ_FILE_TYPE = ['txt']
 
 
 class CheckHash:
@@ -105,8 +106,10 @@ class CheckHash:
         try:
             if Path(self.path_input_file).stat().st_size == 0:
                 print(f"File {self.path_input_file} empty")
+                exit(self.path_input_file)
+            if self.path_input_file.split('.')[-1] not in READ_FILE_TYPE:
+                print(f'Available file extensions {READ_FILE_TYPE}')
                 exit()
-
             with open(self.path_input_file, "r") as f:
                 for num, line in enumerate(f, 1):
 
@@ -138,6 +141,9 @@ class CheckHash:
         except IOError:
             print(f'File {self.path_input_file} not available')
 
+        except UnicodeDecodeError:
+            print('not support')
+
 
 def check_exists_file(value):
     """
@@ -145,8 +151,12 @@ def check_exists_file(value):
     :param value: the path to the file
     :return: Bool
     """
+
     if len(value) == 0 or len(value.split('.')) < 2:
         print('You didn`t specify the file path. Try it again')
+        return True
+    elif value.split('.')[-1] not in READ_FILE_TYPE:
+        print(f'Available file extensions {READ_FILE_TYPE}')
         return True
     elif not os.path.exists(value):
         print('File on the given path was not found. Check path')

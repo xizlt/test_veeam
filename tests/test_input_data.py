@@ -30,3 +30,14 @@ def test_bad(capfd, value):
     captured, err = capfd.readouterr()
     assert c == True
     assert captured == 'You didn`t specify the file path. Try it again\n'
+
+
+@pytest.mark.parametrize('value', [('test.exe'),
+                                   ('folder/test.pdf')
+                                   ])
+def test_not_support_ex(capfd, value):
+    READ_FILE_TYPE = ['txt']
+    c = check_exists_file(value)
+    captured, err = capfd.readouterr()
+    assert c == True
+    assert captured == f'Available file extensions {READ_FILE_TYPE}\n'
